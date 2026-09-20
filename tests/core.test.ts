@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createServer, type Server } from 'node:http';
 import { once } from 'node:events';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -111,18 +111,35 @@ describe('collection validation', () => {
 });
 
 describe('HTTP execution', () => {
-  it('checks status, case-insensitive headers, deep JSON, array indexes, and timing', async () => {
+  it('checks status, case-insensitive headers, deep JSON, and array indexes', async () => {
     const result = await executeRequest(spec({ assertions: [
       { type: 'status', expected: 200 },
       { type: 'header', name: 'X-Fixture', expected: 'works' },
       { type: 'json', path: '$.items[0].id', expected: 1 },
       { type: 'json', path: 'items.0.id', expected: 1 },
       { type: 'json', path: 'metadata', expected: { a: 1, b: 2 } },
-      { type: 'time', maxMs: 1000 },
     ] }));
+    expect(result.error).toBeUndefined();
+    expect(result.checks.filter(check => !check.passed)).toEqual([]);
     expect(result.passed).toBe(true);
-    expect(result.checks).toHaveLength(6);
+    expect(result.checks).toHaveLength(5);
     expect(result.bytes).toBe(Buffer.byteLength(result.body));
+  });
+  it('checks the response-time boundary independently of hosted runner speed', async () => {
+    const transport = vi.spyOn(globalThis, 'fetch');
+    const clock = vi.spyOn(performance, 'now');
+    try {
+      for (const duration of [999, 1000, 1001]) {
+        const response = new Response('{"ok":true}', { status: 200 });
+        transport.mockResolvedValueOnce(response);
+        clock.mockReset().mockReturnValueOnce(0).mockReturnValue(duration);
+        const result = await executeRequest(spec({ assertions: [{ type: 'time', maxMs: 1000 }] }));
+        expect(result.error).toBeUndefined();
+        expect(result.durationMs).toBe(duration);
+        expect(result.checks[0].passed).toBe(duration <= 1000);
+        expect(result.passed).toBe(duration <= 1000);
+      }
+    } finally { transport.mockRestore(); clock.mockRestore(); }
   });
   it('preserves assertion failures and fails missing JSON paths', async () => {
     const result = await executeRequest(spec({ assertions: [

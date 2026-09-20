@@ -2,7 +2,7 @@
 
 ## GitHub 首次发布候选：2026-09-21
 
-发布候选的本地 `npm test` 已通过 **42/42** 测试；新增覆盖 Cookie 回显脱敏、16 MiB 报告预算及后续请求不发送、64 MiB 历史预算与读写竞态、重复 header 导入警告、存储故障不泄露本地路径。CLI 多子进程集成测试采用 60 秒总限时，每个子进程仍有独立超时，以适应 Windows 冷启动。
+发布候选的本地 `npm test` 已通过 **43/43** 测试；新增覆盖 Cookie 回显脱敏、16 MiB 报告预算及后续请求不发送、64 MiB 历史预算与读写竞态、重复 header 导入警告、存储故障不泄露本地路径。CLI 多子进程集成测试采用 60 秒总限时，每个子进程仍有独立超时，以适应 Windows 冷启动。响应耗时断言使用可控时钟验证 999 / 1000 / 1001 ms 三个边界，真实 HTTP 集成单独验证响应，避免把共享 CI 机器的速度当作功能要求。
 
 `npm run test:package` 首轮已实际通过：创建 tgz、独立目录安装、安装后命令解析、真实 HTTP 成功与失败退出码、Web 页面和 JS/CSS/API 可用。该检查也纳入 CI，具体提交结果以 [GitHub Actions](https://github.com/cocode199/requestdock/actions/workflows/ci.yml) 为准。公开仓库、Discussions 与私密漏洞报告入口已创建；没有发布 npm 包。
 
