@@ -1,0 +1,59 @@
+{
+  "id": "03ca630d-51dd-4808-82f7-8743e3017800",
+  "collectionName": "RequestDock local demo",
+  "timestamp": "2026-09-20T15:32:56.109Z",
+  "passed": true,
+  "results": [
+    {
+      "requestId": "demo-health",
+      "name": "Check the built-in demo API",
+      "method": "GET",
+      "url": "http://127.0.0.1:4323/api/demo",
+      "timestamp": "2026-09-20T15:32:56.113Z",
+      "status": 200,
+      "statusText": "OK",
+      "durationMs": 44.5,
+      "headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-security-policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Sun, 20 Sep 2026 15:32:56 GMT",
+        "keep-alive": "timeout=5",
+        "referrer-policy": "no-referrer",
+        "transfer-encoding": "chunked",
+        "x-content-type-options": "nosniff"
+      },
+      "body": "{\"service\":\"RequestDock demo\",\"ok\":true,\"version\":1}",
+      "bytes": 52,
+      "checks": [
+        {
+          "name": "Status is 200",
+          "passed": true,
+          "message": "Expected 200; received 200"
+        },
+        {
+          "name": "JSON $.service",
+          "passed": true,
+          "message": "Expected \"RequestDock demo\"; received \"RequestDock demo\""
+        },
+        {
+          "name": "JSON $.ok",
+          "passed": true,
+          "message": "Expected true; received true"
+        },
+        {
+          "name": "JSON $.version",
+          "passed": true,
+          "message": "Expected 1; received 1"
+        },
+        {
+          "name": "Response within 2000 ms",
+          "passed": true,
+          "message": "Completed in 44.5 ms; limit 2000 ms"
+        }
+      ],
+      "passed": true
+    }
+  ]
+}

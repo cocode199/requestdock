@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private vulnerability report / 私密漏洞报告
+    url: https://github.com/cocode199/requestdock/security/advisories/new
+    about: Report security vulnerabilities privately. Do not disclose exploitable details in public issues.
+  - name: Questions and ideas / 使用交流
+    url: https://github.com/cocode199/requestdock/discussions
+    about: Discuss usage and workflows in English or Chinese; use issues for reproducible bugs.

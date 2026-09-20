@@ -1,0 +1,22 @@
+services:
+  requestdock:
+    build: .
+    init: true
+    ports:
+      - "127.0.0.1:4310:4310"
+    environment:
+      REQUESTDOCK_TOKEN: "${REQUESTDOCK_TOKEN:?Set REQUESTDOCK_TOKEN to a random secret before starting}"
+      REQUESTDOCK_DATA: /data
+    volumes:
+      - requestdock-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  requestdock-data:

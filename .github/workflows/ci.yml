@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check / ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:package
+      - run: git diff --exit-code -- THIRD_PARTY_NOTICES.md
+
+  browser:
+    name: Chromium user workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
+        with:
+          name: chromium-failure
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  docker:
+    name: Docker build and persistence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      COMPOSE_PROJECT_NAME: requestdock-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      REQUESTDOCK_TOKEN: ci-only-synthetic-token-for-testing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build and start the documented Compose deployment
+        run: docker compose up --build --detach --wait --wait-timeout 60
+      - name: Check authentication, requests, UI, and storage as non-root
+        run: |
+          docker compose exec -T requestdock node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          assert.notEqual(process.getuid(), 0, 'container must run as non-root');
+          const base = 'http://127.0.0.1:4310';
+          const headers = { Authorization: `Bearer ${process.env.REQUESTDOCK_TOKEN}`, 'Content-Type': 'application/json' };
+          assert.equal((await fetch(`${base}/api/collections`)).status, 401);
+          const page = await fetch(base);
+          assert.equal(page.status, 200);
+          assert.match(await page.text(), /id="root"/);
+          const collection = { version: 1, name: 'Docker persistence smoke', requests: [
+            { id: 'health', name: 'Demo check', method: 'GET', url: `${base}/api/demo`, assertions: [{ type: 'status', expected: 200 }] }
+          ] };
+          const save = await fetch(`${base}/api/collections`, { method: 'POST', headers, body: JSON.stringify(collection) });
+          assert.equal(save.status, 201);
+          const run = await fetch(`${base}/api/run`, { method: 'POST', headers, body: JSON.stringify({ collection }) });
+          assert.equal(run.status, 200);
+          assert.equal((await run.json()).passed, true);
+          NODE
+      - name: Recreate container and verify the named volume survives
+        run: |
+          docker compose up --detach --force-recreate --wait --wait-timeout 60
+          docker compose exec -T requestdock node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const base = 'http://127.0.0.1:4310';
+          const headers = { Authorization: `Bearer ${process.env.REQUESTDOCK_TOKEN}` };
+          const collections = await fetch(`${base}/api/collections`, { headers });
+          assert.equal(collections.status, 200);
+          assert.ok((await collections.json()).some(item => item.collection.name === 'Docker persistence smoke'));
+          const history = await fetch(`${base}/api/history`, { headers });
+          assert.equal(history.status, 200);
+          assert.ok((await history.json()).some(run => run.collectionName === 'Docker persistence smoke' && run.passed));
+          NODE
+      - name: Container logs
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Clean up this CI project's container and test volume
+        if: always()
+        run: docker compose down --volumes --remove-orphans

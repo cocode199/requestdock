@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "name": "RequestDock local demo",
+  "variables": { "baseUrl": "http://127.0.0.1:4310" },
+  "requests": [
+    {
+      "id": "demo-health",
+      "name": "Check the built-in demo API",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/demo",
+      "headers": { "Accept": "application/json" },
+      "timeoutMs": 10000,
+      "assertions": [
+        { "type": "status", "expected": 200 },
+        { "type": "json", "path": "$.service", "expected": "RequestDock demo" },
+        { "type": "json", "path": "$.ok", "expected": true },
+        { "type": "json", "path": "$.version", "expected": 1 },
+        { "type": "time", "maxMs": 2000 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+name: Workflow improvement / 工作流改进
+description: Propose a change grounded in a real API workflow.
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: English and Chinese are welcome. Describe the user need before the implementation.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What workflow is blocked? / 哪个工作流遇到阻碍？
+      description: Describe frequency, impact, and your current workaround. Use synthetic examples.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and acceptance criteria / 建议行为与验收条件
+      description: Give a concrete input/output example or the steps a user should be able to complete.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and maintenance cost / 替代方案与维护代价
+      description: Could a plugin solve this? Consider format compatibility, migration, security, and scope.
+  - type: dropdown
+    id: help
+    attributes:
+      label: Optional way to help / 自愿参与方式
+      options:
+        - Provide examples and try a proposed change
+        - Help with documentation or tests
+        - Attempt an implementation
+        - Report the need only

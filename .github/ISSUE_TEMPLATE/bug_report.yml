@@ -1,0 +1,49 @@
+name: Bug report / 缺陷
+description: Report a reproducible problem using synthetic data.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English and Chinese are welcome. Search existing issues first.
+        For vulnerabilities, read SECURITY.md and use private reporting.
+        Do not include credentials, private domains, or real response data.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment / 运行环境
+      description: RequestDock version or commit, Node version, OS, browser, and whether Docker is used.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction / 最小复现
+      description: List steps and exact commands; use a synthetic collection or local fixture API.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 预期行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 实际行为
+      description: Include the error or exit code; explain how it differs from your expectation.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs or screenshots / 脱敏日志或截图
+      description: Inspect URLs, request/response bodies, headers, and variables before sharing.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before submitting / 提交检查
+      options:
+        - label: I removed credentials and private data, and searched existing issues.
+          required: true

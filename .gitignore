@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.requestdock/
+.requestdock-e2e/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.*
+*.local.json
+*.env.json
+requestdock-backup/
+*.tgz
+artifacts/*.zip
