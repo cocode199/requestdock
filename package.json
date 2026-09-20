@@ -27,5 +27,5 @@
     "cli": "tsx src/cli.ts"
   },
   "dependencies": { "commander": "^14.0.0", "react": "^19.2.0", "react-dom": "^19.2.0", "zod": "^4.1.0" },
-  "devDependencies": { "@playwright/test": "^1.58.0", "@types/node": "^24.0.0", "@types/react": "^19.2.0", "@types/react-dom": "^19.2.0", "@vitejs/plugin-react": "^5.1.0", "tsx": "^4.21.0", "typescript": "~5.9.3", "vite": "^7.3.0", "vitest": "^4.0.0" }
+  "devDependencies": { "@playwright/test": "^1.58.0", "@types/node": "^24.0.0", "@types/react": "^19.2.0", "@types/react-dom": "^19.2.0", "@vitejs/plugin-react": "^5.1.0", "tsx": "^4.21.0", "typescript": "~5.9.3", "vite": "^7.3.0", "vitest": "^5.0.1" }
 }
